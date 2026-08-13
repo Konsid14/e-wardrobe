@@ -1,0 +1,23 @@
+* { box-sizing: border-box; font-family: system-ui, Arial, sans-serif; }
+body { margin: 0; padding: 0; background: #f5f7fb; color: #222 }
+header { background: #2b6cb0; color: white; padding: 12px 18px }
+header h1 { margin: 0; font-size: 20px }
+main { padding: 18px }
+.hidden { display: none }
+.upload-row { display: flex; gap: 18px }
+.panel { background: white; padding: 12px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,.06); width: 320px }
+.panel h3 { margin-top: 0 }
+canvas { width: 100%; background: #ddd; border: 1px solid #bbb; display: block }
+.controls { margin-top: 12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap }
+.controls label { font-size: 13px }
+#clothes-list { list-style: none; padding: 0; max-height: 220px; overflow:auto }
+#clothes-list li { display:flex; gap:8px; align-items:center; padding:6px; border-bottom:1px solid #eee }
+#clothes-list img { width:48px; height:48px; object-fit:cover; border-radius:4px }
+#history-list { list-style:none; padding:0; max-height:300px; overflow:auto }
+#history-list li { padding:8px; border-bottom:1px solid #eee }
+#signup-box, #login-box { display:inline-block; margin-right:24px; background:white; padding:12px; border-radius:8px }
+#signup-box input, #login-box input, input, select, button { display:block; margin:6px 0; padding:8px }
+.toolbar { display:flex; justify-content:space-between; margin-bottom:12px }
+.user-info { font-size:14px }
+footer { padding:12px; text-align:center; font-size:12px; color:#666 }
+@media (max-width:900px){ .upload-row{flex-direction:column} .panel{width:auto} canvas{height:420px} }

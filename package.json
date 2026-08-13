@@ -1,0 +1,11 @@
+{
+  "name": "ewardrobe",
+  "version": "0.1.0",
+  "description": "E-Wardrobe demo web app (client-only). Pack with Capacitor or Cordova to build APK.",
+  "scripts": {
+    "start": "echo This is a static site. Serve the folder with any static server (http-server, live-server, or GitHub Pages).",
+    "build": "echo build step - static site"
+  },
+  "author": "",
+  "license": "MIT"
+}

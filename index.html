@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>E-Wardrobe</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>E-Wardrobe</h1>
+  </header>
+
+  <main>
+    <section id="auth-section">
+      <div id="signup-box">
+        <h2>Create account</h2>
+        <input id="signup-username" placeholder="Username">
+        <input id="signup-password" type="password" placeholder="Password">
+        <button id="signup-btn">Sign up</button>
+      </div>
+
+      <div id="login-box">
+        <h2>Login</h2>
+        <input id="login-username" placeholder="Username">
+        <input id="login-password" type="password" placeholder="Password">
+        <button id="login-btn">Login</button>
+      </div>
+    </section>
+
+    <section id="app-section" class="hidden">
+      <div class="toolbar">
+        <div class="user-info">Logged in as <span id="current-user"></span> <button id="logout-btn">Logout</button></div>
+      </div>
+
+      <div class="upload-row">
+        <div class="panel">
+          <h3>Profile Photo</h3>
+          <input id="person-file" type="file" accept="image/*" capture="user">
+          <canvas id="canvas" width="480" height="640"></canvas>
+        </div>
+
+        <div class="panel">
+          <h3>Add clothes</h3>
+          <input id="clothe-file" type="file" accept="image/*" capture="environment">
+          <input id="clothe-name" placeholder="Cloth name (e.g., Red T-shirt)">
+          <input id="clothe-size" placeholder="Size (e.g., M)">
+          <button id="add-cloth-btn">Add Cloth</button>
+
+          <h4>Your clothes</h4>
+          <ul id="clothes-list"></ul>
+        </div>
+      </div>
+
+      <div class="controls">
+        <label>Select cloth to place:</label>
+        <select id="select-cloth"><option value="">-- none --</option></select>
+        <label>Opacity: <input id="overlay-opacity" type="range" min="0" max="1" step="0.01" value="0.95"></label>
+        <label>Scale: <input id="overlay-scale" type="range" min="0.1" max="3" step="0.01" value="1"></label>
+        <label>Rotate: <input id="overlay-rotate" type="range" min="-180" max="180" step="1" value="0"></label>
+        <button id="save-outfit">Save outfit to history</button>
+      </div>
+
+      <section class="history-panel">
+        <h3>History</h3>
+        <ul id="history-list"></ul>
+      </section>
+    </section>
+  </main>
+
+  <footer>
+    <small>Prototype e-wardrobe — demo only. Data stored locally in browser.</small>
+  </footer>
+
+<script src="app.js"></script>
+</body>
+</html>
