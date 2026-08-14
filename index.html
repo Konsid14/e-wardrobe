@@ -2,76 +2,157 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#6c63ff" />
   <title>E-Wardrobe</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <h1>E-Wardrobe</h1>
-  </header>
-
-  <main>
-    <section id="auth-section">
-      <div id="signup-box">
-        <h2>Create account</h2>
-        <input id="signup-username" placeholder="Username">
-        <input id="signup-password" type="password" placeholder="Password">
-        <button id="signup-btn">Sign up</button>
-      </div>
-
-      <div id="login-box">
-        <h2>Login</h2>
-        <input id="login-username" placeholder="Username">
-        <input id="login-password" type="password" placeholder="Password">
-        <button id="login-btn">Login</button>
-      </div>
-    </section>
-
-    <section id="app-section" class="hidden">
-      <div class="toolbar">
-        <div class="user-info">Logged in as <span id="current-user"></span> <button id="logout-btn">Logout</button></div>
-      </div>
-
-      <div class="upload-row">
-        <div class="panel">
-          <h3>Profile Photo</h3>
-          <input id="person-file" type="file" accept="image/*" capture="user">
-          <canvas id="canvas" width="480" height="640"></canvas>
-        </div>
-
-        <div class="panel">
-          <h3>Add clothes</h3>
-          <input id="clothe-file" type="file" accept="image/*" capture="environment">
-          <input id="clothe-name" placeholder="Cloth name (e.g., Red T-shirt)">
-          <input id="clothe-size" placeholder="Size (e.g., M)">
-          <button id="add-cloth-btn">Add Cloth</button>
-
-          <h4>Your clothes</h4>
-          <ul id="clothes-list"></ul>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">E</div>
+        <div>
+          <h1>E-Wardrobe</h1>
+          <p>Your digital wardrobe</p>
         </div>
       </div>
+    </header>
 
-      <div class="controls">
-        <label>Select cloth to place:</label>
-        <select id="select-cloth"><option value="">-- none --</option></select>
-        <label>Opacity: <input id="overlay-opacity" type="range" min="0" max="1" step="0.01" value="0.95"></label>
-        <label>Scale: <input id="overlay-scale" type="range" min="0.1" max="3" step="0.01" value="1"></label>
-        <label>Rotate: <input id="overlay-rotate" type="range" min="-180" max="180" step="1" value="0"></label>
-        <button id="save-outfit">Save outfit to history</button>
-      </div>
+    <main class="page">
+      <section id="auth-section" class="auth-layout">
+        <div class="auth-hero">
+          <span class="eyebrow">YOUR STYLE, ORGANIZED</span>
+          <h2>Plan outfits.<br><span>Keep your wardrobe together.</span></h2>
+          <p>Save your clothes, try different combinations and keep your favorite outfits in one place.</p>
+          <div class="feature-row">
+            <div><strong>01</strong><span>Upload clothes</span></div>
+            <div><strong>02</strong><span>Build outfits</span></div>
+            <div><strong>03</strong><span>Save favorites</span></div>
+          </div>
+        </div>
 
-      <section class="history-panel">
-        <h3>History</h3>
-        <ul id="history-list"></ul>
+        <div class="auth-card">
+          <div class="auth-tabs" role="tablist">
+            <button id="login-tab" class="auth-tab active" type="button">Log in</button>
+            <button id="signup-tab" class="auth-tab" type="button">Create account</button>
+          </div>
+
+          <form id="auth-form">
+            <div class="auth-heading">
+              <h3 id="auth-title">Welcome back</h3>
+              <p id="auth-subtitle">Log in to open your wardrobe.</p>
+            </div>
+
+            <label for="auth-username">Username</label>
+            <input id="auth-username" autocomplete="username" placeholder="Choose a username" required>
+
+            <label for="auth-password">Password</label>
+            <div class="password-field">
+              <input id="auth-password" type="password" autocomplete="current-password" placeholder="Your password" required>
+              <button id="toggle-password" class="icon-button" type="button" aria-label="Show password">◉</button>
+            </div>
+
+            <label id="confirm-label" class="confirm-field hidden" for="auth-confirm">Confirm password</label>
+            <div id="confirm-wrap" class="password-field confirm-field hidden">
+              <input id="auth-confirm" type="password" autocomplete="new-password" placeholder="Repeat your password">
+            </div>
+
+            <button id="auth-submit" class="primary-button" type="submit">Log in</button>
+            <p id="auth-message" class="form-message" aria-live="polite"></p>
+          </form>
+        </div>
       </section>
-    </section>
-  </main>
 
-  <footer>
-    <small>Prototype e-wardrobe — demo only. Data stored locally in browser.</small>
-  </footer>
+      <section id="app-section" class="hidden">
+        <div class="app-header-card">
+          <div>
+            <span class="eyebrow">MY WARDROBE</span>
+            <h2>Welcome, <span id="current-user"></span></h2>
+            <p>Create outfits and keep your favorites close.</p>
+          </div>
+          <button id="logout-btn" class="secondary-button" type="button">Log out</button>
+        </div>
 
+        <div class="workspace-grid">
+          <section class="panel wardrobe-panel">
+            <div class="section-title">
+              <div>
+                <span class="section-kicker">WARDROBE</span>
+                <h3>Your clothes</h3>
+              </div>
+              <span class="section-icon">✦</span>
+            </div>
+
+            <div class="upload-card">
+              <label class="upload-label" for="clothe-file">Add a clothing item</label>
+              <input id="clothe-file" type="file" accept="image/*" capture="environment">
+              <input id="clothe-name" placeholder="Clothing name">
+              <input id="clothe-size" placeholder="Size (optional)">
+              <button id="add-cloth-btn" class="primary-button" type="button">Add to wardrobe</button>
+            </div>
+
+            <ul id="clothes-list" class="item-list"></ul>
+          </section>
+
+          <section class="panel studio-panel">
+            <div class="section-title">
+              <div>
+                <span class="section-kicker">OUTFIT STUDIO</span>
+                <h3>Try an outfit</h3>
+              </div>
+              <span class="section-icon">◌</span>
+            </div>
+
+            <div class="profile-upload-row">
+              <label class="file-pill" for="person-file">Add your photo</label>
+              <input id="person-file" class="visually-hidden" type="file" accept="image/*" capture="user">
+              <span class="hint">Drag the selected item on the photo.</span>
+            </div>
+
+            <div class="canvas-wrap">
+              <canvas id="canvas" width="480" height="640"></canvas>
+              <div id="canvas-empty" class="canvas-empty">
+                <div class="empty-icon">+</div>
+                <strong>Add a photo to get started</strong>
+                <span>Your selected clothes will appear here.</span>
+              </div>
+            </div>
+
+            <div class="controls-card">
+              <label>Clothing item
+                <select id="select-cloth"><option value="">Select an item</option></select>
+              </label>
+              <label>Opacity
+                <input id="overlay-opacity" type="range" min="0" max="1" step="0.01" value="0.95">
+              </label>
+              <label>Scale
+                <input id="overlay-scale" type="range" min="0.1" max="3" step="0.01" value="1">
+              </label>
+              <label>Rotation
+                <input id="overlay-rotate" type="range" min="-180" max="180" step="1" value="0">
+              </label>
+              <button id="save-outfit" class="primary-button" type="button">Save outfit</button>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel history-panel">
+          <div class="section-title">
+            <div>
+              <span class="section-kicker">COLLECTION</span>
+              <h3>Saved outfits</h3>
+            </div>
+            <span class="section-icon">♡</span>
+          </div>
+          <ul id="history-list" class="history-grid"></ul>
+          <div id="history-empty" class="empty-state">Your saved outfits will appear here.</div>
+        </section>
+      </section>
+    </main>
+
+    <footer>© E-Wardrobe</footer>
+  </div>
 <script src="app.js"></script>
 </body>
 </html>
