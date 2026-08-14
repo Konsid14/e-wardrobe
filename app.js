@@ -124,6 +124,8 @@ authForm.addEventListener('submit', (event) => {
 $('logout-btn').addEventListener('click', () => {
   persistPersonSnapshot();
   currentUser = null;
+  personImg = null;
+  overlayImg = null;
   showAuth();
 });
 
@@ -139,6 +141,8 @@ function showApp() {
   currentUserSpan.textContent = currentUser;
   ensureUserShape();
   loadUserData();
+  restoreSession();
+  requestAnimationFrame(fitCanvas);
 }
 
 function ensureUserShape() {
@@ -395,6 +399,5 @@ function restoreSession() {
 window.addEventListener('resize', fitCanvas);
 window.addEventListener('beforeunload', () => persistPersonSnapshot(true));
 
-// Start
 showAuth();
 fitCanvas();
