@@ -1,10 +1,19 @@
 {
   "name": "ewardrobe",
   "version": "0.1.0",
-  "description": "E-Wardrobe demo web app (client-only). Pack with Capacitor or Cordova to build APK.",
+  "description": "E-Wardrobe demo web app packaged with Capacitor for Android.",
   "scripts": {
     "start": "echo This is a static site. Serve the folder with any static server (http-server, live-server, or GitHub Pages).",
-    "build": "echo build step - static site"
+    "build": "echo build step - static site",
+    "cap:add:android": "cap add android",
+    "cap:sync": "cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/core": "7.6.8"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "7.6.8",
+    "@capacitor/android": "7.6.8"
   },
   "author": "",
   "license": "MIT"
