@@ -25,7 +25,16 @@ jobs:
           node-version: '22'
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --no-package-lock
+
+      - name: Prepare web assets
+        run: |
+          rm -rf www
+          mkdir -p www
+          cp index.html app.js styles.css www/
+
+      - name: Verify Capacitor project
+        run: npx cap doctor
 
       - name: Create Android project
         run: npx cap add android
@@ -35,7 +44,7 @@ jobs:
 
       - name: Build debug APK
         working-directory: android
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
