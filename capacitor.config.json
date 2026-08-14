@@ -1,6 +1,5 @@
 {
-  "appId": "com.example.ewardrobe",
+  "appId": "com.ewardrobe.app",
   "appName": "E-Wardrobe",
-  "webDir": "./",
-  "bundledWebRuntime": false
+  "webDir": "www"
 }
