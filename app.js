@@ -3,6 +3,7 @@
 
 const $ = (id) => document.getElementById(id);
 const STORAGE_KEY = 'ewardrobe:v2';
+const ACTIVE_USER_KEY = 'ewardrobe:active-user';
 
 function defaultState() {
   return { users: {}, sessions: {} };
@@ -108,6 +109,7 @@ authForm.addEventListener('submit', (event) => {
     state.users[username] = { password, clothes: {}, history: [] };
     state.sessions[username] = {};
     saveState();
+    setActiveUser(username);
     currentUser = username;
     authForm.reset();
     showApp();
@@ -117,17 +119,31 @@ authForm.addEventListener('submit', (event) => {
   const user = state.users[username];
   if (!user || user.password !== password) return setAuthMessage('Username or password is incorrect.');
   currentUser = username;
+  setActiveUser(username);
   authForm.reset();
   showApp();
 });
 
 $('logout-btn').addEventListener('click', () => {
-  persistPersonSnapshot();
+  persistPersonSnapshot(true);
+  clearActiveUser();
   currentUser = null;
   personImg = null;
   overlayImg = null;
   showAuth();
 });
+
+function setActiveUser(username) {
+  localStorage.setItem(ACTIVE_USER_KEY, username);
+}
+
+function getActiveUser() {
+  return localStorage.getItem(ACTIVE_USER_KEY);
+}
+
+function clearActiveUser() {
+  localStorage.removeItem(ACTIVE_USER_KEY);
+}
 
 function showAuth() {
   authSection.classList.remove('hidden');
@@ -142,7 +158,6 @@ function showApp() {
   ensureUserShape();
   loadUserData();
   restoreSession();
-  requestAnimationFrame(fitCanvas);
 }
 
 function ensureUserShape() {
@@ -160,14 +175,14 @@ function fitCanvas() {
     overlay.x = canvas.width / 2;
     overlay.y = canvas.height / 2;
   }
-  renderCanvas();
+  renderCanvas(false);
 }
 
 function clearCanvas() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 
-function renderCanvas() {
+function renderCanvas(savePerson = false) {
   clearCanvas();
 
   if (personImg) {
@@ -189,12 +204,15 @@ function renderCanvas() {
   }
 
   canvasEmpty.classList.toggle('hidden', Boolean(personImg));
-  persistPersonSnapshot(false);
+  if (savePerson) persistPersonSnapshot(true);
 }
 
 function loadPersonFromDataURL(dataURL) {
   const img = new Image();
-  img.onload = () => { personImg = img; renderCanvas(); };
+  img.onload = () => {
+    personImg = img;
+    renderCanvas(true);
+  };
   img.src = dataURL;
 }
 
@@ -204,6 +222,7 @@ $('person-file').addEventListener('change', async (event) => {
   try {
     const data = await fileToDataURL(file);
     loadPersonFromDataURL(data);
+    event.target.value = '';
   } catch {
     alert('Could not load that image.');
   }
@@ -257,7 +276,7 @@ function loadUserData() {
       }
       saveState();
       loadUserData();
-      renderCanvas();
+      renderCanvas(false);
     });
     list.appendChild(li);
 
@@ -273,7 +292,7 @@ function loadUserData() {
 function selectClothById(id) {
   if (!id) {
     overlayImg = null;
-    renderCanvas();
+    renderCanvas(false);
     return;
   }
   const item = state.users[currentUser].clothes[id];
@@ -290,15 +309,15 @@ function selectClothById(id) {
     };
     $('overlay-scale').value = '1';
     $('overlay-rotate').value = '0';
-    renderCanvas();
+    renderCanvas(false);
   };
   img.src = item.img;
 }
 
 $('select-cloth').addEventListener('change', (event) => selectClothById(event.target.value));
-$('overlay-opacity').addEventListener('input', (e) => { overlay.opacity = Number(e.target.value); renderCanvas(); });
-$('overlay-scale').addEventListener('input', (e) => { overlay.scale = Number(e.target.value); renderCanvas(); });
-$('overlay-rotate').addEventListener('input', (e) => { overlay.rotate = Number(e.target.value); renderCanvas(); });
+$('overlay-opacity').addEventListener('input', (e) => { overlay.opacity = Number(e.target.value); renderCanvas(false); });
+$('overlay-scale').addEventListener('input', (e) => { overlay.scale = Number(e.target.value); renderCanvas(false); });
+$('overlay-rotate').addEventListener('input', (e) => { overlay.rotate = Number(e.target.value); renderCanvas(false); });
 
 canvas.addEventListener('pointerdown', (event) => {
   if (!overlayImg) return;
@@ -318,7 +337,7 @@ canvas.addEventListener('pointermove', (event) => {
   const point = getCanvasPoint(event);
   overlay.x = point.x - dragOffset.x;
   overlay.y = point.y - dragOffset.y;
-  renderCanvas();
+  renderCanvas(false);
 });
 canvas.addEventListener('pointerup', stopDragging);
 canvas.addEventListener('pointercancel', stopDragging);
@@ -387,7 +406,9 @@ function persistPersonSnapshot(save = true) {
     tctx.drawImage(personImg, (temp.width - w) / 2, (temp.height - h) / 2, w, h);
     state.sessions[currentUser].lastPerson = temp.toDataURL('image/jpeg', .72);
     if (save) saveState();
-  } catch { /* ignore storage limitations */ }
+  } catch {
+    // Ignore storage failures so a photo cannot break the session.
+  }
 }
 
 function restoreSession() {
@@ -396,8 +417,21 @@ function restoreSession() {
   if (snapshot) loadPersonFromDataURL(snapshot);
 }
 
-window.addEventListener('resize', fitCanvas);
+function restoreActiveLogin() {
+  const username = getActiveUser();
+  if (!username || !state.users[username]) {
+    clearActiveUser();
+    showAuth();
+    return;
+  }
+  currentUser = username;
+  showApp();
+}
+
+window.addEventListener('resize', () => fitCanvas());
+window.addEventListener('pagehide', () => persistPersonSnapshot(true));
 window.addEventListener('beforeunload', () => persistPersonSnapshot(true));
 
-showAuth();
+// Start: keep the user signed in on app reloads.
+restoreActiveLogin();
 fitCanvas();
