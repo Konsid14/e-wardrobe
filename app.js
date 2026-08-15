@@ -157,6 +157,7 @@ function showApp() {
   currentUserSpan.textContent = currentUser;
   ensureUserShape();
   loadUserData();
+  fitCanvas();
   restoreSession();
 }
 
@@ -208,23 +209,53 @@ function renderCanvas(savePerson = false) {
 }
 
 function loadPersonFromDataURL(dataURL) {
+  if (!dataURL) return;
   const img = new Image();
   img.onload = () => {
     personImg = img;
-    renderCanvas(true);
+    fitCanvas();
+    renderCanvas(false);
+  };
+  img.onerror = () => {
+    personImg = null;
+    renderCanvas(false);
   };
   img.src = dataURL;
+}
+
+function loadPersonFromFile(file) {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      personImg = img;
+      fitCanvas();
+      renderCanvas(false);
+      persistPersonSnapshot(true);
+      resolve();
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('Image could not be decoded'));
+    };
+
+    img.src = objectUrl;
+  });
 }
 
 $('person-file').addEventListener('change', async (event) => {
   const file = event.target.files?.[0];
   if (!file || !currentUser) return;
+
   try {
-    const data = await fileToDataURL(file);
-    loadPersonFromDataURL(data);
-    event.target.value = '';
+    await loadPersonFromFile(file);
   } catch {
-    alert('Could not load that image.');
+    alert('Could not load that image. Please choose another photo.');
+  } finally {
+    event.target.value = '';
   }
 });
 
