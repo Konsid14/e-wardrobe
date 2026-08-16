@@ -33,7 +33,7 @@ function fileToDataURL(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
+    reader.onerror = () => reject(new Error('FileReader failed'));
     reader.readAsDataURL(file);
   });
 }
@@ -208,54 +208,56 @@ function renderCanvas(savePerson = false) {
   if (savePerson) persistPersonSnapshot(true);
 }
 
-function loadPersonFromDataURL(dataURL) {
-  if (!dataURL) return;
-  const img = new Image();
-  img.onload = () => {
+function loadImageElement(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Image could not be decoded'));
+    img.src = src;
+  });
+}
+
+async function loadPersonFromFile(file) {
+  if (!file || !file.type.startsWith('image/')) {
+    throw new Error('Selected file is not an image');
+  }
+
+  // Primary path: read the actual bytes into a data URL. This survives Android WebView file-picker lifecycle changes.
+  try {
+    const dataUrl = await fileToDataURL(file);
+    const img = await loadImageElement(dataUrl);
     personImg = img;
     fitCanvas();
     renderCanvas(false);
-  };
-  img.onerror = () => {
-    personImg = null;
-    renderCanvas(false);
-  };
-  img.src = dataURL;
-}
-
-function loadPersonFromFile(file) {
-  return new Promise((resolve, reject) => {
+    persistPersonSnapshot(true);
+    return;
+  } catch (firstError) {
+    // Fallback for WebViews that have trouble decoding large data URLs.
     const objectUrl = URL.createObjectURL(file);
-    const img = new Image();
-
-    img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
+    try {
+      const img = await loadImageElement(objectUrl);
       personImg = img;
       fitCanvas();
       renderCanvas(false);
       persistPersonSnapshot(true);
-      resolve();
-    };
-
-    img.onerror = () => {
+    } finally {
       URL.revokeObjectURL(objectUrl);
-      reject(new Error('Image could not be decoded'));
-    };
-
-    img.src = objectUrl;
-  });
+    }
+  }
 }
 
 $('person-file').addEventListener('change', async (event) => {
-  const file = event.target.files?.[0];
+  const input = event.target;
+  const file = input.files?.[0];
   if (!file || !currentUser) return;
 
   try {
     await loadPersonFromFile(file);
-  } catch {
+  } catch (error) {
+    console.error('Profile photo error:', error);
     alert('Could not load that image. Please choose another photo.');
   } finally {
-    event.target.value = '';
+    input.value = '';
   }
 });
 
@@ -463,6 +465,5 @@ window.addEventListener('resize', () => fitCanvas());
 window.addEventListener('pagehide', () => persistPersonSnapshot(true));
 window.addEventListener('beforeunload', () => persistPersonSnapshot(true));
 
-// Start: keep the user signed in on app reloads.
 restoreActiveLogin();
 fitCanvas();
